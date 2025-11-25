@@ -1,0 +1,185 @@
+public class Payment {
+    protected double amount;
+    protected String currency;
+    protected String status;
+
+    public Payment(double amount, String currency) {
+        this.amount = amount;
+        this.currency =  currency;
+        this.status = "Pending";
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void processPayment() {
+        System.out.println("Processing generic payment.");
+    }
+
+    public void generateReceipt() {
+        System.out.println("Receipt for amount" +amount+ "in currency" +currency);
+    }
+
+    public void markAsComplete() {
+        this.status = "Complete";
+    }
+}
+
+//Cash On Delivery
+public class CashOnDelivery extends Payment {
+    private String deliveryAddress;
+
+    public CashOnDelivery(double amount, String currency, String deliveryAddress) {
+        super(amount, currency);
+        this.deliveryAddress = deliveryAddress;
+    }
+
+    @Override
+    public void processPayment() {
+        System.out.println("Cash will be collected at delivery address:" +deliveryAddress);
+    }
+}
+// Bank Transfer
+public class BankTransfer extends Payment{
+    private String bankName;
+    private String accountNumber;
+    private String referenceCode;
+
+    public BankTransfer(double amount, String currency, String bankName, String accountNumber, String referenceCode) {
+        super(amount, currency);
+        this.bankName = bankName;
+        this.accountNumber = accountNumber;
+        this.referenceCode = referenceCode;
+    }
+
+    @Override
+    public void processPayment() {
+        System.out.println("Initiating bank transfer to" +bankName+ "using account" +accountNumber+ "with reference" +referenceCode);
+
+        markAsComplete();
+    }
+}
+//Card Payment
+public class CardPayment extends Payment{
+    protected String cardNumber;
+    protected String cardholderName;
+    protected String expiryDate;
+
+    public CardPayment(double amount, String currency, String cardNumber, String cardholderName, String expiryDate) {
+        super(amount, currency);
+        this.cardNumber = cardNumber;
+        this.cardholderName = cardholderName;
+        this.expiryDate = expiryDate;
+    }
+
+
+
+    @Override
+    public void processPayment() {
+        System.out.println("Authorizing card payment for" +cardholderName);
+    }
+
+    public void validateCard() {
+        System.out.println("Validating card number format.");
+    }
+}
+//Credit Card
+public class CreditCard extends CardPayment{
+    private double creditLimit;
+
+    public CreditCard(double amount,String currency, String cardNumber,String cardholderName ,String expiryDate, double creditLimit) {
+        super(amount,currency,cardNumber,cardholderName,expiryDate);
+        this.creditLimit = creditLimit;
+    }
+
+    @Override
+    public void processPayment() {
+        System.out.println("Charging credit card with limit" +creditLimit+ "for amount" +amount);
+    }
+
+    public void applyInterest() {
+        System.out.println("Applying interest if payment is not settled by due date.");
+    }
+}
+//Debit Card
+public class DebitCard extends CardPayment{
+    private double availableBalance;
+
+
+    public DebitCard(double amount, String currency,String cardNumber, String cardholderName,String expiryDate, double availableBalance) {
+        super(amount, currency, cardNumber, cardholderName,expiryDate);
+        this.availableBalance = availableBalance;
+    }
+
+    @Override
+    public void processPayment() {
+        System.out.println("Debiting from the account balance" +availableBalance+ "for amount" +amount);
+        validateCard();
+    }
+
+    public void checkSufficientBalance() {
+        System.out.println("Checking if balance covers amount");
+    }
+}
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class PaymentTest {
+    public static void main(String[] args) {
+
+        Payment cod = new CashOnDelivery(5000, "LKR", "Malabe");
+        Payment bank = new BankTransfer(10000, "LKR", "BOC", "1222222","REF1234");
+        Payment credit = new CreditCard(8000, "LKR", "1111-2222-3333-4444", "Kamal","02/27",5000);
+        Payment debit = new DebitCard(20000, "LKR", "5555-4444-6666-7777", "Niaml","04/12",100000);
+
+        //Individual calls
+        cod.processPayment();
+        cod.generateReceipt();
+
+        bank.processPayment();
+        bank.generateReceipt();
+
+        credit.processPayment();
+        credit.generateReceipt();
+
+        debit.processPayment();
+        debit.generateReceipt();
+
+        System.out.println();
+
+        List<Payment> payments = new ArrayList<>();
+        payments.add(cod);
+        payments.add(bank);
+        payments.add(credit);
+        payments.add(debit);
+
+        for (Payment p : payments) {
+            p.processPayment();
+        }
+    }
+}
+
+
